@@ -6,3 +6,6 @@ Lab 2.1\EWARM\settings\
 ELEN509_RTC_Ain_PWMin\EWARM\settings\
 *.o
 *.mp4
+*.jpg
+
+*.pdf
