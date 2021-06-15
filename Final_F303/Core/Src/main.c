@@ -25,11 +25,12 @@
 #include "Project.h"
 #include "Scheduler.h"
 #include "Encoder.h"
-#include "..\..\SSD1306\oled\inc\fonts.h"
-#include "..\..\SSD1306\oled\inc\ssd1306.h"
-#include "..\..\SSD1306\oled\inc\test.h"
-#include "..\..\SSD1306\oled\src\bitmap.h"
-#include "..\..\SSD1306\oled\src\horse_anim.h"
+#include "Buttons.h"
+#include "fonts.h"
+#include "ssd1306.h"
+#include "test.h"
+#include "bitmap.h"
+#include "ux_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,11 +56,22 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim16;
 
-UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
 Encoder encoder;
+extern uint8_t ten_mS_Flag;
+extern uint8_t twentyfive_mS_Flag;
+extern uint8_t hundred_mS_Flag;
+extern uint8_t one_S_Flag;
+
+uint8_t twoHuundred_mS_Switch = false;
+
+// keyboard stuff
+uint8_t buttonDebounced = false;
+uint8_t buttonProcessed = false;
+keyCode currKeyCode = BUT_NULL;
 
 /* USER CODE END PV */
 
@@ -71,7 +83,7 @@ static void MX_TIM3_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM1_Init(void);
-static void MX_USART1_UART_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -114,36 +126,80 @@ int main(void)
   MX_TIM16_Init();
   MX_ADC1_Init();
   MX_TIM1_Init();
-  MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   
   // Encoder
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_2);
+  encoder.max = 32;
   ENC_Init(&encoder);
   
   // Display Init
-//  SSD1306_Init();  // initialise  
-//  SSD1306_Clear();
-//  SSD1306_GotoXY (5,0);
-//  SSD1306_Puts ("Good Morning!", &Font_7x10, SSD1306_COLOR_WHITE);
-//  SSD1306_GotoXY (20,35);
-//  SSD1306_Puts ("WAKE UP!", &Font_11x18, SSD1306_COLOR_WHITE);
-//
-//  SSD1306_UpdateScreen(); 
+  SSD1306_Init();  // initialise  
+  SSD1306_Clear();
+  SSD1306_GotoXY (5,0);
+  SSD1306_Puts ("Starting Up!", &Font_7x10, SSD1306_COLOR_WHITE);
+  SSD1306_GotoXY (20,35);
+  SSD1306_Puts ("LOADING", &Font_11x18, SSD1306_COLOR_WHITE);
+
+  SSD1306_UpdateScreen(); 
   
-  HAL_Delay (5000);
-  
+  HAL_Delay (1000);
+  SwitchScreens(MAIN);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    ENC_Update(&encoder);
-    HAL_Delay(10);
-    /* USER CODE END WHILE */
+    
+    if(ten_mS_Flag){
+      ten_mS_Flag = false;
+      ENC_Update(&encoder);
+      if(encoder.direction){
+        ProcessKeyCodeInContext(BUT_MOV, &encoder);
+      }
+      
+    }
+    
+    if(twentyfive_mS_Flag){
+      twentyfive_mS_Flag = false;
+      currKeyCode = getKeyCode();
+      
+      if (currKeyCode) {
+        if (buttonDebounced == true) {
+          if (buttonProcessed == false) { // you only get here if the same button combination has been pressed for 100mS
+            buttonProcessed = ProcessKeyCodeInContext(currKeyCode, &encoder); // here's where we do the real work on the keyboard, and ensure we only do it once/keypress
+          }
+        }
+        else {
+          buttonDebounced = true;
+        }
+      }
+      else {
+        buttonDebounced = false;
+        buttonProcessed = false;
+      }      
+      
+    }
+    
+    if(hundred_mS_Flag){
+      hundred_mS_Flag = false;
+      
 
+      twoHuundred_mS_Switch ^= true;
+      
+      
+      if (twoHuundred_mS_Switch == true) {
+        UpdateScreenValues();
+//        UpdateGraph();
+      }
+      
+    }
+    
+    /* USER CODE END WHILE */
+    
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -185,9 +241,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_TIM1|RCC_PERIPHCLK_ADC12;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_TIM1
+                              |RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
   PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
@@ -346,7 +401,7 @@ static void MX_TIM1_Init(void)
   sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
   sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
   sConfigIC.ICFilter = 0;
-  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -456,37 +511,37 @@ static void MX_TIM16_Init(void)
 }
 
 /**
-  * @brief USART1 Initialization Function
+  * @brief USART2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART1_UART_Init(void)
+static void MX_USART2_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART1_Init 0 */
+  /* USER CODE BEGIN USART2_Init 0 */
 
-  /* USER CODE END USART1_Init 0 */
+  /* USER CODE END USART2_Init 0 */
 
-  /* USER CODE BEGIN USART1_Init 1 */
+  /* USER CODE BEGIN USART2_Init 1 */
 
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 38400;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 38400;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART1_Init 2 */
+  /* USER CODE BEGIN USART2_Init 2 */
 
-  /* USER CODE END USART1_Init 2 */
+  /* USER CODE END USART2_Init 2 */
 
 }
 
@@ -504,11 +559,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /*Configure GPIO pins : BUT_L_Pin BUT_R_Pin BUT_ENC_Pin */
-  GPIO_InitStruct.Pin = BUT_L_Pin|BUT_R_Pin|BUT_ENC_Pin;
+  /*Configure GPIO pins : BUT_R_Pin BUT_L_Pin */
+  GPIO_InitStruct.Pin = BUT_R_Pin|BUT_L_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : BUT_ENC_Pin */
+  GPIO_InitStruct.Pin = BUT_ENC_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(BUT_ENC_GPIO_Port, &GPIO_InitStruct);
 
 }
 

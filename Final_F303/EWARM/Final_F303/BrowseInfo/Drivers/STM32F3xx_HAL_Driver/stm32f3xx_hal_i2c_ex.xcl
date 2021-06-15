@@ -21,7 +21,7 @@ C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Devi
 -I
 C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Include
 -I
-C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../SSD1306\oled\Inc
+C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../SSD1306/oled/Inc
 -I
 C:\Program Files\IAR Systems\Embedded Workbench 9.0\arm\inc\c\aarch32
 -I

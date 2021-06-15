@@ -7,17 +7,16 @@
 
 // includes
 #include <stdint.h>
-#include "..\..\ssd1306\oled\inc\ssd1306.h"
+#include "ssd1306.h"
+#include "Buttons.h"
+#include "Encoder.h"
 
 
 // typedefs
 typedef enum  Screens_{
   MAIN,
-  SHOW_TEMP,
-  SHOW_HUM,
-  SET_TEMP,
-  SET_HUM,
-  SET_TIME,
+  EDIT_PLOT,
+  SET_POINT
 //  NUMBER_OF_SCREENS
 } ui_screen;
 
@@ -92,11 +91,23 @@ typedef struct bargraph8x32_t_
   uint8_t data[8];
   char xLabel[8];
   char yTicks[4];
-  char title[8];
+  char title[16];
   uint16_t xPos;
   uint16_t yPos;
   uint8_t valid;
 } bargraph8x32_t;
+
+typedef struct linegraph_t_
+{
+  uint8_t data[24];
+  char xLabel[24];
+  char yTicks[4];
+  char title[16];
+  uint16_t xPos;
+  uint16_t yPos;
+  uint8_t cursor;
+  uint8_t valid;
+} linegraph_t;
 
 // Global variables
 // live screen data variables
@@ -118,11 +129,11 @@ extern uint8_t graphUpdated;
 void SwitchScreens(ui_screen screen_no);
 //void PrintTest(char * formater, uint16_t variable, uint8_t position);
 //uint8_t ProcessKeyCode (uint16_t key_code);
-void ProcessKeyCode (uint16_t key_code);
-uint8_t ProcessKeyCodeInContext (uint16_t key_code);
+void ProcessKeyCode (keyCode key_code);
+uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc);
 void UpdateScreenValues(void);
 uint8_t GetKeycode(void);
 
-void UpdateGraph(void);
+void UpdateGraph(ui_screen _screen_no, linegraph_t* graph);
 
 #endif

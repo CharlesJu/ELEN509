@@ -16,7 +16,7 @@ uint8_t nextSerialRxIn = 0;
 uint8_t nextserialRx2Proc = 0;
 
 // external variables
-extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart2;
 
 // Function to submit char and binary strings into the Xmit buffer
 // it has a switch to decide if trailing zeros should be put into the buffer or ignored

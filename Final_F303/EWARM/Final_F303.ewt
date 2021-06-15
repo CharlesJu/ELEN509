@@ -1424,6 +1424,18 @@
     <group>
         <name>Application</name>
         <group>
+            <name>Display</name>
+            <file>
+                <name>$PROJ_DIR$\..\SSD1306\oled\Src\fonts.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\SSD1306\oled\Src\ssd1306.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Core\Src\ux_manager.c</name>
+            </file>
+        </group>
+        <group>
             <name>EWARM</name>
             <file>
                 <name>$PROJ_DIR$\startup_stm32f303x8.s</name>
@@ -1433,6 +1445,9 @@
             <name>User</name>
             <group>
                 <name>Core</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Core\Src\Buttons.c</name>
+                </file>
                 <file>
                     <name>$PROJ_DIR$\..\Core\Src\Encoder.c</name>
                 </file>
@@ -1447,9 +1462,6 @@
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Core\Src\stm32f3xx_it.c</name>
-                </file>
-                <file>
-                    <name>$PROJ_DIR$\..\Core\Src\ux_manager.c</name>
                 </file>
             </group>
         </group>

@@ -5,9 +5,9 @@
 #define false 0
 
 typedef enum {
+  STOPPED,
   FORWARD,
-  BACKWARD,
-  STOPPED
+  BACKWARD
 } direction;
 
 

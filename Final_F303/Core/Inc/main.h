@@ -62,11 +62,11 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOF
-#define BUT_L_Pin GPIO_PIN_4
-#define BUT_L_GPIO_Port GPIOA
-#define BUT_R_Pin GPIO_PIN_5
+#define BUT_R_Pin GPIO_PIN_4
 #define BUT_R_GPIO_Port GPIOA
-#define BUT_ENC_Pin GPIO_PIN_6
+#define BUT_L_Pin GPIO_PIN_5
+#define BUT_L_GPIO_Port GPIOA
+#define BUT_ENC_Pin GPIO_PIN_11
 #define BUT_ENC_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
