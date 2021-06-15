@@ -11,6 +11,10 @@
 #include "Buttons.h"
 #include "Encoder.h"
 
+#include "main.h"
+#include "project.h"
+#include <stdio.h>
+#include "Scheduler.h"
 
 // typedefs
 typedef enum  Screens_{

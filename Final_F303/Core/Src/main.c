@@ -67,6 +67,7 @@ extern uint8_t hundred_mS_Flag;
 extern uint8_t one_S_Flag;
 
 uint8_t twoHuundred_mS_Switch = false;
+uint8_t two_S_Flag = false;
 
 // keyboard stuff
 uint8_t buttonDebounced = false;
@@ -159,6 +160,7 @@ int main(void)
       ENC_Update(&encoder);
       if(encoder.direction){
         ProcessKeyCodeInContext(BUT_MOV, &encoder);
+        two_S_Flag = false;
       }
       
     }
@@ -196,6 +198,18 @@ int main(void)
 //        UpdateGraph();
       }
       
+    }
+    
+    if(one_S_Flag){
+      one_S_Flag = false;
+      
+   
+      if (two_S_Flag) {
+        if(!encoder.direction){
+          ProcessKeyCodeInContext(BUT_WAIT, &encoder);
+        }
+      }
+      two_S_Flag ^= true;
     }
     
     /* USER CODE END WHILE */

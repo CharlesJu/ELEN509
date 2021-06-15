@@ -18,15 +18,15 @@ void ENC_Update(Encoder *enc){
   if(enc->current > enc->previous){
     tmp = enc->previous - enc->current;
     if(tmp > 0) 
-      enc->direction = BACKWARD;
-    else 
       enc->direction = FORWARD;
+    else 
+      enc->direction = BACKWARD;
   } else if (enc->current < enc->previous){
     tmp = enc->current - enc->previous; 
     if(tmp > 0) 
-      enc->direction = FORWARD;
-    else 
       enc->direction = BACKWARD;
+    else 
+      enc->direction = FORWARD;
     
   } else {
     enc->direction = STOPPED;

@@ -13,7 +13,8 @@ typedef enum {
   BUT_L,
   BUT_R,
   BUT_ENC,
-  BUT_MOV
+  BUT_MOV,
+  BUT_WAIT
 } keyCode;
 
 keyCode getKeyCode(void);

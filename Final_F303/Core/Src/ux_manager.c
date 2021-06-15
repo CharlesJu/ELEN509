@@ -1,10 +1,6 @@
 // ux_manager.c
 
-
-#include "main.h"
 #include "ux_manager.h"
-#include "project.h"
-#include <stdio.h>
 
 // private defines
 
@@ -35,6 +31,7 @@ ui_screen lastScreen;
 // format seq (numeric): {<format string>, <error message>, <Xpos>, <Ypos>, <valid?>, <init value>}
 DWfloat counter = {"%5.2f", "----", 0, 0, true, 0};
 DWfloat moisture = {"%4.1f", "----", 0, 0, true, 0};
+DWuint8_t setMoisture = {"%02u", "----", 0,0, true, 0};
 //DWfloat tempInF = {"%4.1f", "----", 0, 0, true, 72.2};
 //DWfloat humidity = {"%4.1f", "----", 0, 0, true, 40.1};
 //DWint16_t tempCJ_F = {"%5d", "!!!!", 0, 0, true, 0};
@@ -68,7 +65,7 @@ void ShowGraph(ui_screen _screen_no, linegraph_t* graph);
 void SwitchScreens(ui_screen screen_no)
 {
   lastScreen = currentScreen;
-
+  
   
 #pragma diag_suppress= Pa149
   // what must be done before current screen is switched out
@@ -100,11 +97,19 @@ void SwitchScreens(ui_screen screen_no)
     ShowGraph(screen_no, &moisturePlan);
     break;
   case SET_POINT:
+    SSD1306_Clear();
+    SSD1306_GotoXY (0,0);
+    SSD1306_Puts ("Set Moisture", &Font_7x10, SSD1306_COLOR_WHITE);
+    
+    setMoisture.xPos = 5;
+    setMoisture.yPos = 32;
+
+    SSD1306_UpdateScreen();
     break;
   case BUT_MOV:
     break;
   }
-
+  
   currentScreen = screen_no;
   
 #pragma diag_suppress= Pa149
@@ -162,78 +167,73 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
   switch (currentScreen) {
   case  MAIN:
     switch (key_code) {
-      case BUT_NULL:
-        break;
-      case BUT_L:
-        break;
-      case BUT_R:
-        break;
-      case BUT_ENC:
-        SwitchScreens(EDIT_PLOT);
-        break;
-      case BUT_MOV:
-        break;
+    case BUT_NULL:
+      break;
+    case BUT_L:
+      break;
+    case BUT_R:
+      break;
+    case BUT_ENC:
+      SwitchScreens(EDIT_PLOT);
+      break;
+    case BUT_MOV:
+      break;
+      case BUT_WAIT:
+      break;
     }
     break;
   case  EDIT_PLOT:
     switch (key_code) {
-      case BUT_NULL:
-        break;
-      case BUT_L:
-        SSD1306_Clear();
-        // Highlight Correct Point
-        if(--moisturePlan.cursor > 23)
-          moisturePlan.cursor = 23;
-        enc->value = moisturePlan.data[moisturePlan.cursor];
-        ShowGraph(currentScreen, &moisturePlan);
-        break;
-      case BUT_R:
-        SSD1306_Clear();
-        // Highlight Correct Point
-        if (++moisturePlan.cursor > 23)
-          moisturePlan.cursor = 0;
-        enc->value = moisturePlan.data[moisturePlan.cursor];
-        ShowGraph(currentScreen, &moisturePlan);
-        break;
-      case BUT_MOV:
-        moisturePlan.data[moisturePlan.cursor] = enc->value;
-        SSD1306_Clear();
-        ShowGraph(currentScreen, &moisturePlan);
-        break;
-      case BUT_ENC:
-        SwitchScreens(MAIN);
-        break;
+      case BUT_WAIT:
+      break;
+    case BUT_NULL:
+      break;
+    case BUT_L:
+      SSD1306_Clear();
+      // Highlight Correct Point
+      if(--moisturePlan.cursor > 23)
+        moisturePlan.cursor = 23;
+      enc->value = moisturePlan.data[moisturePlan.cursor];
+      ShowGraph(currentScreen, &moisturePlan);
+      break;
+    case BUT_R:
+      SSD1306_Clear();
+      // Highlight Correct Point
+      if (++moisturePlan.cursor > 23)
+        moisturePlan.cursor = 0;
+      enc->value = moisturePlan.data[moisturePlan.cursor];
+      ShowGraph(currentScreen, &moisturePlan);
+      break;
+    case BUT_MOV:
+      SwitchScreens(SET_POINT);
+      break;
+    case BUT_ENC:
+      SwitchScreens(MAIN);
+      break;
     }
     break;
   case  SET_POINT:
     switch (key_code) {
-      case BUT_NULL:
-        break;
-      case BUT_L:
-        break;
-      case BUT_R:
-        break;
-      case BUT_ENC:
-        SwitchScreens(MAIN);
-        break;
-      case BUT_MOV:
-        break;
-      }
-    break;
-  case BUT_MOV:
-    switch (key_code) {
-      case BUT_NULL:
-        break;
-      case BUT_L:
-        break;
-      case BUT_R:
-        break;
-      case BUT_ENC:
-        SwitchScreens(MAIN);
-        break;
-      case BUT_MOV:
-        break;
-      }
+    case BUT_WAIT:
+      moisturePlan.data[moisturePlan.cursor] = setMoisture.data;
+      SwitchScreens(EDIT_PLOT);
+      break;
+    case BUT_NULL:
+      break;
+    case BUT_L:
+      break;
+    case BUT_R:
+      break;
+    case BUT_ENC:
+      moisturePlan.data[moisturePlan.cursor] = setMoisture.data;
+      SwitchScreens(EDIT_PLOT);
+      break;
+    case BUT_MOV:
+      setMoisture.data = enc->value;
+      SSD1306_DrawFilledRectangle(setMoisture.xPos+31,setMoisture.yPos+1, 94, 16, SSD1306_COLOR_BLACK);
+      UpdateScreenValues();
+      break;
+    }
     break;
   }
   
@@ -262,8 +262,20 @@ void UpdateScreenValues(void)
   case EDIT_PLOT:
     break;
   case SET_POINT:
+    SSD1306_GotoXY (setMoisture.xPos, setMoisture.yPos);
+    if (setMoisture.valid) {
+      sprintf(displayString, setMoisture.format, setMoisture.data);
+      SSD1306_Puts(displayString, &Font_11x18, SSD1306_COLOR_WHITE);
+    }
+    else 
+      SSD1306_Puts(setMoisture.invalidMsg, &Font_11x18, SSD1306_COLOR_WHITE);
+    
+    SSD1306_DrawRectangle(setMoisture.xPos+30,setMoisture.yPos, 96, 18, SSD1306_COLOR_WHITE);
+    SSD1306_DrawFilledRectangle(setMoisture.xPos+30,setMoisture.yPos, setMoisture.data*3, 18, SSD1306_COLOR_WHITE);
+    
+    
     break;
-
+    
   }
   SSD1306_UpdateScreen(); //display
 }
@@ -292,9 +304,9 @@ void UpdateGraph(ui_screen _screen_no, linegraph_t* graph){
     break;
   case SET_POINT:
     break;
-
+    
   }
-    SSD1306_UpdateScreen();
+  SSD1306_UpdateScreen();
 }
 
 
@@ -317,7 +329,7 @@ void ShowGraph(ui_screen _screen_no, linegraph_t* graph)
     SSD1306_DrawLine(baseX, baseY, baseX, baseY+32, SSD1306_COLOR_WHITE); //vert
     SSD1306_DrawLine(baseX, baseY+32, baseX+96, baseY+32, SSD1306_COLOR_WHITE); // horiz
     
-
+    
     for(i = 0; i < 4; ++i){
       SSD1306_DrawLine(baseX-2, baseY+(i*8), baseX+2, baseY+(i*8), SSD1306_COLOR_WHITE);
       SSD1306_GotoXY((baseX-9), baseY-3+(i*8));
@@ -336,7 +348,7 @@ void ShowGraph(ui_screen _screen_no, linegraph_t* graph)
     break;
   case SET_POINT:
     break;
-
+    
   }
 }
 

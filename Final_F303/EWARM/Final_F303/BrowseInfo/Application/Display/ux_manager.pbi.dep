@@ -1,6 +1,13 @@
 C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM\Final_F303\BrowseInfo\Application\Display\ux_manager.pbi: \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\Core\Src\ux_manager.c \
-  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc\main.h \
+  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc\ux_manager.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\stdint.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\ycheck.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\yvals.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Defaults.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Config_Full.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Product.h \
+  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../SSD1306/oled/Inc\ssd1306.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc\stm32f3xx_hal.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc\stm32f3xx_hal_conf.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc\stm32f3xx_hal_rcc.h \
@@ -8,12 +15,6 @@ C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM\Final_F303\BrowseInfo
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Device/ST/STM32F3xx/Include\stm32f3xx.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f303x8.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Include\core_cm4.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\stdint.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\ycheck.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\yvals.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Defaults.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Config_Full.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Product.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Include/cmsis_version.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Include/cmsis_compiler.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/CMSIS/Include\cmsis_iccarm.h \
@@ -41,8 +42,6 @@ C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM\Final_F303\BrowseInfo
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_tim_ex.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc\stm32f3xx_hal_uart.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_uart_ex.h \
-  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc\ux_manager.h \
-  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../SSD1306/oled/Inc\ssd1306.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../SSD1306/oled/Inc/fonts.h \
   C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\string.h \
   C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_Product_string.h \
@@ -52,5 +51,6 @@ C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM\Final_F303\BrowseInfo
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc/Project.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc/main.h \
   C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc/Encoder.h \
-  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc\project.h \
-  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\stdio.h
+  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc/project.h \
+  C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\stdio.h \
+  C:\Users\charl\Documents\gitrepos\ELEN509\Final_F303\EWARM/../Core/Inc/Scheduler.h
