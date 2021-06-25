@@ -1085,6 +1085,9 @@
           <name>$PROJ_DIR$\..\Core\Src\Encoder.c</name>
         </file>
         <file>
+          <name>$PROJ_DIR$\..\Core\Src\MotorController.c</name>
+        </file>
+        <file>
           <name>$PROJ_DIR$\..\Core\Src\Serial.c</name>
         </file>
         <file>

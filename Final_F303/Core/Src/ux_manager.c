@@ -30,7 +30,7 @@ ui_screen lastScreen;
 // Display-wrapped values
 // format seq (numeric): {<format string>, <error message>, <Xpos>, <Ypos>, <valid?>, <init value>}
 DWfloat counter = {"%5.2f", "----", 0, 0, true, 0};
-DWfloat moisture = {"%4.1f", "----", 0, 0, true, 0};
+DWuint8_t moisture = {"%02u", "----", 0, 0, true, 0};
 DWuint8_t setMoisture = {"%02u", "----", 0,0, true, 0};
 //DWfloat tempInF = {"%4.1f", "----", 0, 0, true, 72.2};
 //DWfloat humidity = {"%4.1f", "----", 0, 0, true, 40.1};
@@ -40,7 +40,7 @@ DWuint8_t setMoisture = {"%02u", "----", 0,0, true, 0};
 // Graph variables
 //bargraph8x32_t myGraph = {{4,8,6,9,20,12,15,10}, {'a','b','c','d','e','f','g','h'}, {'4','3','2','1'}, "Set Moisture", 15, 16, true};
 linegraph_t moisturePlan = {
-  {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24},
+  {2,2,2,2,2,2,2,2,2,2,2,25,25,2,2,2,2,25,2,2,2,2,2,2},
   {'0','1','2','3','4','5','6','7','8','9','0','0','0','0','0','0','0','0','0','0','0','0','0','0'},
   {' ',' ',' ',' '},
   "Set Moisture",
@@ -231,7 +231,7 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
     case BUT_MOV:
       setMoisture.data = enc->value;
       SSD1306_DrawFilledRectangle(setMoisture.xPos+31,setMoisture.yPos+1, 94, 16, SSD1306_COLOR_BLACK);
-      UpdateScreenValues();
+      UpdateScreenValues((uint32_t)moisture.data);
       break;
     }
     break;
@@ -245,10 +245,10 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
 
 
 
-void UpdateScreenValues(void)
+void UpdateScreenValues(uint8_t moistureIn)
 {
   char displayString[25];
-  
+  moisture.data = moistureIn;
   switch (currentScreen) {
   case MAIN:
     SSD1306_GotoXY (moisture.xPos, moisture.yPos);
@@ -341,7 +341,7 @@ void ShowGraph(ui_screen _screen_no, linegraph_t* graph)
     }
     
     SSD1306_DrawFilledCircle(baseX+graph->cursor*4, baseY+32-graph->data[graph->cursor],2, SSD1306_COLOR_YELLOW);
-    SSD1306_GotoXY(baseX+graph->cursor*4, baseY+32);
+    SSD1306_GotoXY(baseX+graph->cursor*4-3, baseY+34);
     sprintf(showString, "%u", graph->cursor);
     SSD1306_Puts(showString, &Font_7x10, SSD1306_COLOR_WHITE);
     

@@ -676,7 +676,7 @@
                     <item>keyCode</item>
                     <item>currentScreen</item>
                     <item>myGraph</item>
-                    <item></item>
+                    <item />
                 </expressions>
                 <col-names>
                     <item>Expression</item>

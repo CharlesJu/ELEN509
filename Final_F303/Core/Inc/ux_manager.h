@@ -135,7 +135,7 @@ void SwitchScreens(ui_screen screen_no);
 //uint8_t ProcessKeyCode (uint16_t key_code);
 void ProcessKeyCode (keyCode key_code);
 uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc);
-void UpdateScreenValues(void);
+void UpdateScreenValues(uint8_t moistureIn);
 uint8_t GetKeycode(void);
 
 void UpdateGraph(ui_screen _screen_no, linegraph_t* graph);

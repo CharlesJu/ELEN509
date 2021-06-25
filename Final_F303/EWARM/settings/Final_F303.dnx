@@ -12,7 +12,7 @@
         <ByteLimit>50</ByteLimit>
     </Stack>
     <StLinkDriver>
-        <stlinkserialNo>066BFF323239524257193229</stlinkserialNo>
+        <stlinkserialNo>066BFF545150898367202513</stlinkserialNo>
         <stlinkfoundProbes />
         <CStepIntDis>_ 0</CStepIntDis>
         <LeaveTargetRunning>_ 0</LeaveTargetRunning>
@@ -20,7 +20,7 @@
         <stlinkResetStrategy>2</stlinkResetStrategy>
     </StLinkDriver>
     <DebugChecksum>
-        <Checksum>138610013</Checksum>
+        <Checksum>2088186284</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -54,6 +54,9 @@
     <struct_types>
         <Fmt0>Encoder-direction	3	0</Fmt0>
     </struct_types>
+    <watch_formats>
+        <Fmt0>{W}42:currMoisture	3	0</Fmt0>
+    </watch_formats>
     <Trace2>
         <Enabled>0</Enabled>
         <ShowSource>0</ShowSource>
