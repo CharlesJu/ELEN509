@@ -20,7 +20,8 @@
 typedef enum  Screens_{
   MAIN,
   EDIT_PLOT,
-  SET_POINT
+  SET_POINT,
+  DEBUG
 //  NUMBER_OF_SCREENS
 } ui_screen;
 
@@ -135,7 +136,7 @@ void SwitchScreens(ui_screen screen_no);
 //uint8_t ProcessKeyCode (uint16_t key_code);
 void ProcessKeyCode (keyCode key_code);
 uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc);
-void UpdateScreenValues(uint8_t moistureIn);
+void UpdateScreenValues(uint8_t moistureIn, uint16_t frequencyIn);
 uint8_t GetKeycode(void);
 
 void UpdateGraph(ui_screen _screen_no, linegraph_t* graph);

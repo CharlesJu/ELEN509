@@ -32,6 +32,7 @@ ui_screen lastScreen;
 DWfloat counter = {"%5.2f", "----", 0, 0, true, 0};
 DWuint8_t moisture = {"%02u", "----", 0, 0, true, 0};
 DWuint8_t setMoisture = {"%02u", "----", 0,0, true, 0};
+DWuint16_t frequency = {"%02u", "----", 0, 0, true, 0};
 //DWfloat tempInF = {"%4.1f", "----", 0, 0, true, 72.2};
 //DWfloat humidity = {"%4.1f", "----", 0, 0, true, 40.1};
 //DWint16_t tempCJ_F = {"%5d", "!!!!", 0, 0, true, 0};
@@ -41,7 +42,7 @@ DWuint8_t setMoisture = {"%02u", "----", 0,0, true, 0};
 //bargraph8x32_t myGraph = {{4,8,6,9,20,12,15,10}, {'a','b','c','d','e','f','g','h'}, {'4','3','2','1'}, "Set Moisture", 15, 16, true};
 linegraph_t moisturePlan = {
   {2,2,2,2,2,2,2,2,2,2,2,25,25,2,2,2,2,25,2,2,2,2,2,2},
-  {'0','1','2','3','4','5','6','7','8','9','0','0','0','0','0','0','0','0','0','0','0','0','0','0'},
+  {'0'},
   {' ',' ',' ',' '},
   "Set Moisture",
   15,
@@ -106,7 +107,17 @@ void SwitchScreens(ui_screen screen_no)
 
     SSD1306_UpdateScreen();
     break;
-  case BUT_MOV:
+  case DEBUG:
+    // clear the screen from the previos dispayed data
+    SSD1306_Clear();
+    // Put up the "persistant" info (like data labels)
+    SSD1306_GotoXY (0,0);
+    SSD1306_Puts ("DEBUG", &Font_7x10, SSD1306_COLOR_WHITE);
+    // Set u X/Y coordinates for "live" data to be displayed on this screen
+    frequency.xPos = 30;
+    frequency.yPos = 30;
+    // Send a screen update (note this does not update the live data)
+    SSD1306_UpdateScreen(); //display
     break;
   }
   
@@ -208,7 +219,7 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
       SwitchScreens(SET_POINT);
       break;
     case BUT_ENC:
-      SwitchScreens(MAIN);
+      SwitchScreens(DEBUG);
       break;
     }
     break;
@@ -231,7 +242,24 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
     case BUT_MOV:
       setMoisture.data = enc->value;
       SSD1306_DrawFilledRectangle(setMoisture.xPos+31,setMoisture.yPos+1, 94, 16, SSD1306_COLOR_BLACK);
-      UpdateScreenValues((uint32_t)moisture.data);
+      UpdateScreenValues((uint32_t)moisture.data, (uint32_t)frequency.data);
+      break;
+    }
+    break;
+  case DEBUG:
+    switch (key_code) {
+    case BUT_WAIT:
+      break;
+    case BUT_NULL:
+      break;
+    case BUT_L:
+      break;
+    case BUT_R:
+      break;
+    case BUT_ENC:
+      SwitchScreens(MAIN);
+      break;
+    case BUT_MOV:
       break;
     }
     break;
@@ -245,10 +273,11 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
 
 
 
-void UpdateScreenValues(uint8_t moistureIn)
+void UpdateScreenValues(uint8_t moistureIn, uint16_t frequencyIn)
 {
   char displayString[25];
   moisture.data = moistureIn;
+  frequency.data = frequencyIn;
   switch (currentScreen) {
   case MAIN:
     SSD1306_GotoXY (moisture.xPos, moisture.yPos);
@@ -274,6 +303,15 @@ void UpdateScreenValues(uint8_t moistureIn)
     SSD1306_DrawFilledRectangle(setMoisture.xPos+30,setMoisture.yPos, setMoisture.data*3, 18, SSD1306_COLOR_WHITE);
     
     
+    break;
+  case DEBUG:
+    SSD1306_GotoXY (frequency.xPos, frequency.yPos);
+    if (frequency.valid) {
+      sprintf(displayString, frequency.format, frequency.data);
+      SSD1306_Puts(displayString, &Font_16x26, SSD1306_COLOR_WHITE);
+    }
+    else 
+      SSD1306_Puts(frequency.invalidMsg, &Font_16x26, SSD1306_COLOR_WHITE);
     break;
     
   }
@@ -351,6 +389,7 @@ void ShowGraph(ui_screen _screen_no, linegraph_t* graph)
     
   }
 }
+
 
 
 uint8_t GetKeycode(void)
