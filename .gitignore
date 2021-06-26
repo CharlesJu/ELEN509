@@ -13,6 +13,7 @@
 **/settings/*.dni
 **/settings/*.wsdt
 **/settings/*.wspos
+**/settings/*.dnx
 
 # IAR Debug Exe
 **/Debug/Exe/
@@ -43,3 +44,8 @@ Backup*
 
 # Trash files
 *.bak
+
+# Ninja files
+*.ninja_deps
+*.ninja_log
+
