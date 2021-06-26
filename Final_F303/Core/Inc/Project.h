@@ -10,6 +10,10 @@ typedef enum {
   BACKWARD
 } direction;
 
+typedef enum {
+  IDLE,
+  DONE
+} CaptureState;
 
 
 #endif

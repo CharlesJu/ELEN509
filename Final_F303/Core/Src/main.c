@@ -36,7 +36,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#define RTC_DEV_ADDRESS 0xDE
+#define F_CLK  72000000UL
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -81,6 +82,28 @@ keyCode currKeyCode = BUT_NULL;
 // ADC
 uint32_t analogIn;
 uint8_t currMoisture;
+  
+
+// Flow
+volatile uint64_t flow = 0;
+uint32_t IC_Value1 = 0;
+uint32_t IC_Value2 = 0;
+uint32_t Difference = 0;
+uint32_t Frequency = 0;
+uint8_t firstCapture = true;
+
+// RTC
+uint8_t rtcDataIn[0x20] = {0};
+uint8_t rtcDataOut[0x20] = {0};
+uint8_t ramDataIn[0x20] = {0};
+uint8_t ramDataOut[0x20] = {1,2,3};
+uint8_t readRAM = false;
+uint8_t writeRAM = false;
+uint8_t readRTC = false;
+uint8_t writeRTC = false;
+uint8_t startRTC = true;
+uint8_t setSQWV = false;
+HAL_StatusTypeDef status;
 
 /* USER CODE END PV */
 
@@ -98,6 +121,8 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 uint8_t convertMoisture(uint32_t moistureIn);
+
+
 
 /* USER CODE END PFP */
 
@@ -148,11 +173,9 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_2);
   encoder.max = 32;
   ENC_Init(&encoder);
-  
 
   // Motor
   motorInit(&htim1);
-  
   
   // Display Init
   SSD1306_Init();  // initialise  
@@ -161,14 +184,18 @@ int main(void)
   SSD1306_Puts ("Starting Up!", &Font_7x10, SSD1306_COLOR_WHITE);
   SSD1306_GotoXY (20,35);
   SSD1306_Puts ("LOADING", &Font_11x18, SSD1306_COLOR_WHITE);
-
   SSD1306_UpdateScreen();
   
-    
+  // Flow Meter
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
+  
+  // Test Code
   setMotorSpeed(&htim1, 0, 10000);
-  HAL_Delay (5000);
+  HAL_Delay (500);
   SwitchScreens(MAIN);
   setMotorSpeed(&htim1, 0, 0);
+
   
 
   /* USER CODE END 2 */
@@ -177,6 +204,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    flow = TIM2->CCR3;
+    readRAM = true;
     
     if(ten_mS_Flag){
       ten_mS_Flag = false;
@@ -192,12 +221,18 @@ int main(void)
     
     if(twentyfive_mS_Flag){
       twentyfive_mS_Flag = false;
+      
+    }
+    
+    if(hundred_mS_Flag){
+      hundred_mS_Flag = false;
+      
       currKeyCode = getKeyCode();
       
       if (currKeyCode) {
         if (buttonDebounced == true) {
-          if (buttonProcessed == false) { // you only get here if the same button combination has been pressed for 100mS
-            buttonProcessed = ProcessKeyCodeInContext(currKeyCode, &encoder); // here's where we do the real work on the keyboard, and ensure we only do it once/keypress
+          if (buttonProcessed == false) { 
+            buttonProcessed = ProcessKeyCodeInContext(currKeyCode, &encoder); 
           }
         }
         else {
@@ -208,18 +243,13 @@ int main(void)
         buttonDebounced = false;
         buttonProcessed = false;
       }      
-      
-    }
-    
-    if(hundred_mS_Flag){
-      hundred_mS_Flag = false;
-
 
       twoHuundred_mS_Switch ^= true;
       
       
       if (twoHuundred_mS_Switch == true) {
-        UpdateScreenValues(currMoisture);
+        UpdateScreenValues(currMoisture, Frequency);
+//        UpdateScreenValues(currMoisture);
 //        UpdateGraph();
       }
       
@@ -228,7 +258,52 @@ int main(void)
     if(one_S_Flag){
       one_S_Flag = false;
       
-   
+      if (readRAM == true) {
+        readRAM = false;
+        status = HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
+                                  I2C_MEMADD_SIZE_8BIT, ramDataIn, 8, 1000);
+      }
+
+      if (writeRAM == true) {
+        writeRAM = false;
+        status = HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
+                                   I2C_MEMADD_SIZE_8BIT, ramDataOut, 8, 1000);
+      }
+
+      if (readRTC == true) {
+        readRTC = false;
+        HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
+                         I2C_MEMADD_SIZE_8BIT, rtcDataIn, 8, 1000);
+      }
+
+      if (writeRTC == true) {
+        writeRTC = false;
+        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
+                          I2C_MEMADD_SIZE_8BIT, rtcDataOut, 8, 1000);
+      }
+      
+      if (startRTC == true) {
+        startRTC = false;
+        rtcDataOut[0] = 0x08;
+        rtcDataOut[4] = 0x80;
+        // place a 0x08 in the [0] location
+        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
+                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[0], 1, 1000); 
+        // place a 0x80 in the [4] location
+        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
+                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[4], 1, 1000); 
+      }
+      
+      if (setSQWV == true) {
+        setSQWV = false;
+        // place a 0x4C in the [2] location
+        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
+                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[2], 1, 1000); 
+      }
+      
+      
+      
+     
       if (two_S_Flag) {
         if(!encoder.direction){
           ProcessKeyCodeInContext(BUT_WAIT, &encoder);
@@ -496,6 +571,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 0 */
 
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
   TIM_IC_InitTypeDef sConfigIC = {0};
 
@@ -505,9 +581,18 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 4294967295;
+  htim2.Init.Period = 65535;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   if (HAL_TIM_IC_Init(&htim2) != HAL_OK)
   {
     Error_Handler();
@@ -705,6 +790,35 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim){
+  if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3){
+    if(firstCapture){
+      IC_Value1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
+      firstCapture = false;
+    } else {
+      IC_Value2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);  // capture second value
+      
+      if (IC_Value2 > IC_Value1)  
+      {
+        Difference = IC_Value2-IC_Value1;   // calculate the difference
+      }
+      
+      else if (IC_Value2 < IC_Value1)
+      {
+        Difference = ((0xffff-IC_Value1)+IC_Value2) +1;
+      }
+      
+      else
+      {
+        Error_Handler();
+      }
+      
+      Frequency = HAL_RCC_GetPCLK1Freq()/Difference;  // calculate frequency
+      firstCapture = true;  // reset the first 
+    }
+  }
+}
+
 uint8_t convertMoisture(uint32_t moistureIn){
   // 2500 - Air - 5
   // 1500 - Watery Soil - 30
@@ -714,6 +828,10 @@ uint8_t convertMoisture(uint32_t moistureIn){
   return (uint8_t) (80 - tmp);
   
 }
+
+
+
+
 /* USER CODE END 4 */
 
 /**

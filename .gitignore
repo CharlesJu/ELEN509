@@ -1,13 +1,45 @@
-
-Lab 2/EWARM/settings/
-Lab 1\Lab_1\EWARM\settings\
-Lab 2\EWARM\settings\
-Lab 2.1\EWARM\settings\
-ELEN509_RTC_Ain_PWMin\EWARM\settings\
 *.o
 *.mp4
 *.jpg
 
 *.pdf
 
-Final_F303/EWARM/Final_F303/BrowseInfo/.ninja_log
+# IAR Settings
+**/settings/*.crun
+**/settings/*.dbgdt
+**/settings/*.cspy
+**/settings/*.cspy.*
+**/settings/*.xcl
+**/settings/*.dni
+**/settings/*.wsdt
+**/settings/*.wspos
+
+# IAR Debug Exe
+**/Debug/Exe/
+
+# IAR Debug List
+**/Debug/List
+
+# IAR Debug Obj
+**/Obj/*.pbd
+**/Obj/*.pbd.*
+**/Obj/*.pbi
+**/Obj/*.pbi.*
+
+# Log files
+**.log
+
+# IAR backup files
+Backup*
+
+# IAR .dep files
+*.dep
+
+# Compiled Binaries
+*.bin
+*.elf
+*.hex
+*.map
+
+# Trash files
+*.bak
