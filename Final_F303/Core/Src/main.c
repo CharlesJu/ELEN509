@@ -32,12 +32,12 @@
 #include "bitmap.h"
 #include "ux_manager.h"
 #include "MotorController.h"
+#include "RTC_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 #define RTC_DEV_ADDRESS 0xDE
-#define F_CLK  72000000UL
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -204,8 +204,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    flow = TIM2->CCR3;
-    readRAM = true;
     
     if(ten_mS_Flag){
       ten_mS_Flag = false;
@@ -260,45 +258,58 @@ int main(void)
       
       if (readRAM == true) {
         readRAM = false;
-        status = HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
-                                  I2C_MEMADD_SIZE_8BIT, ramDataIn, 8, 1000);
+
+      status = rtcReadRAM(ramDataIn);
+//        status = HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
+//                                  I2C_MEMADD_SIZE_8BIT, ramDataIn, 8, 1000);
       }
 
       if (writeRAM == true) {
         writeRAM = false;
-        status = HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
-                                   I2C_MEMADD_SIZE_8BIT, ramDataOut, 8, 1000);
+        
+        status = rtcWriteRAM(ramDataOut);
+//        status = HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
+//                                   I2C_MEMADD_SIZE_8BIT, ramDataOut, 8, 1000);
       }
 
       if (readRTC == true) {
         readRTC = false;
-        HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
-                         I2C_MEMADD_SIZE_8BIT, rtcDataIn, 8, 1000);
+        status = rtcReadTime(rtcDataIn);
+//        HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
+//                         I2C_MEMADD_SIZE_8BIT, rtcDataIn, 8, 1000);
       }
 
       if (writeRTC == true) {
         writeRTC = false;
-        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
-                          I2C_MEMADD_SIZE_8BIT, rtcDataOut, 8, 1000);
+        status = rtcReadTime(rtcDataOut);
+//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
+//                          I2C_MEMADD_SIZE_8BIT, rtcDataOut, 8, 1000);
       }
       
       if (startRTC == true) {
         startRTC = false;
-        rtcDataOut[0] = 0x08;
-        rtcDataOut[4] = 0x80;
-        // place a 0x08 in the [0] location
-        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
-                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[0], 1, 1000); 
-        // place a 0x80 in the [4] location
-        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
-                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[4], 1, 1000); 
+        
+        status = rtcStart();
+        
+//        rtcDataOut[0] = 0x08;
+//        rtcDataOut[4] = 0x80;
+//        // place a 0x08 in the [0] location
+//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
+//                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[0], 1, 1000); 
+//        // place a 0x80 in the [4] location
+//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
+//                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[4], 1, 1000); 
       }
       
       if (setSQWV == true) {
         setSQWV = false;
         // place a 0x4C in the [2] location
-        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
-                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[2], 1, 1000); 
+        
+        status = rtcSetSQWV();
+        
+//        rtcDataOut[2] = 0x4C;
+//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
+//                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[2], 1, 1000); 
       }
       
       
