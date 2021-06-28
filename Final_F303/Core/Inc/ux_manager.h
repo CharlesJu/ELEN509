@@ -105,7 +105,6 @@ typedef struct bargraph8x32_t_
 typedef struct linegraph_t_
 {
   uint8_t data[24];
-  char xLabel[24];
   char yTicks[4];
   char title[16];
   uint16_t xPos;

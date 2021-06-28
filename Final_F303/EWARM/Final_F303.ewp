@@ -1082,6 +1082,9 @@
                     <name>$PROJ_DIR$\..\Core\Src\Buttons.c</name>
                 </file>
                 <file>
+                    <name>$PROJ_DIR$\..\Core\Src\EEPROM_manager.c</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Core\Src\Encoder.c</name>
                 </file>
                 <file>

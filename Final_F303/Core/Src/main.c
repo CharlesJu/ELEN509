@@ -33,6 +33,7 @@
 #include "ux_manager.h"
 #include "MotorController.h"
 #include "RTC_manager.h"
+#include "EEPROM_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,6 +74,22 @@ extern uint8_t one_S_Flag;
 uint8_t twoHuundred_mS_Switch = false;
 uint8_t two_S_Flag = false;
 
+// Memory Stuff
+linegraph_t moisturePlan = {
+  {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
+  {' ',' ',' ',' '},
+  "Set Moisture",
+  15,
+  16,
+  0,
+  true
+};
+uint8_t ROM_DEFAULT [24] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2};
+uint8_t writeDefaultROM = false;
+
+uint8_t writeROM = false;
+uint8_t readROM = false;
+uint8_t dataRead [24];
 
 // keyboard stuff
 uint8_t buttonDebounced = false;
@@ -178,6 +195,7 @@ int main(void)
   motorInit(&htim1);
   
   // Display Init
+//  romReadData(moisturePlan.data);
   SSD1306_Init();  // initialise  
   SSD1306_Clear();
   SSD1306_GotoXY (5,0);
@@ -312,6 +330,15 @@ int main(void)
 //                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[2], 1, 1000); 
       }
       
+      if (writeDefaultROM == true){
+        writeDefaultROM = false;
+        EEPROM_Write(ROM_DEFAULT);
+//        romWriteData(ROM_DEFAULT);
+      }
+      if (readROM == true){
+        readROM = false;
+        EEPROM_Read(dataRead);
+      }
       
       
      

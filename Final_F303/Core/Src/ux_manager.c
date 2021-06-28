@@ -1,7 +1,7 @@
 // ux_manager.c
 
 #include "ux_manager.h"
-
+#include "EEPROM_manager.h"
 // private defines
 
 
@@ -40,16 +40,7 @@ DWuint16_t frequency = {"%02u", "----", 0, 0, true, 0};
 
 // Graph variables
 //bargraph8x32_t myGraph = {{4,8,6,9,20,12,15,10}, {'a','b','c','d','e','f','g','h'}, {'4','3','2','1'}, "Set Moisture", 15, 16, true};
-linegraph_t moisturePlan = {
-  {2,2,2,2,2,2,2,2,2,2,2,25,25,2,2,2,2,25,2,2,2,2,2,2},
-  {'0'},
-  {' ',' ',' ',' '},
-  "Set Moisture",
-  15,
-  16,
-  0,
-  true
-};
+extern linegraph_t moisturePlan;
 
 uint8_t graphUpdated = true;
 // modular variables
@@ -185,6 +176,7 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
     case BUT_R:
       break;
     case BUT_ENC:
+      EEPROM_Read(moisturePlan.data);
       SwitchScreens(EDIT_PLOT);
       break;
     case BUT_MOV:
@@ -216,6 +208,8 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
       ShowGraph(currentScreen, &moisturePlan);
       break;
     case BUT_MOV:
+//      romReadData(moisturePlan.data);
+      EEPROM_Read(moisturePlan.data);
       SwitchScreens(SET_POINT);
       break;
     case BUT_ENC:
@@ -227,6 +221,8 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
     switch (key_code) {
     case BUT_WAIT:
       moisturePlan.data[moisturePlan.cursor] = setMoisture.data;
+//      romWriteData(moisturePlan.data);
+      EEPROM_Write(moisturePlan.data);
       SwitchScreens(EDIT_PLOT);
       break;
     case BUT_NULL:
@@ -237,6 +233,8 @@ uint8_t ProcessKeyCodeInContext (keyCode key_code, Encoder* enc)
       break;
     case BUT_ENC:
       moisturePlan.data[moisturePlan.cursor] = setMoisture.data;
+//      romWriteData(moisturePlan.data);
+      EEPROM_Write(moisturePlan.data);
       SwitchScreens(EDIT_PLOT);
       break;
     case BUT_MOV:
