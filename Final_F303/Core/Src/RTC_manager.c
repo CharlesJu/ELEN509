@@ -43,6 +43,11 @@ HAL_StatusTypeDef rtcStart(){
   return HAL_I2C_Mem_Write(&hi2c1, RTC_ADDRESS, 0x00, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000);
 }
 
+HAL_StatusTypeDef rtcVbatEnable(){
+  uint8_t value = 0x08;
+  return HAL_I2C_Mem_Write(&hi2c1, RTC_ADDRESS, 0x03, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000);
+
+}
 
 //HAL_StatusTypeDef rtcStart(){
 //}

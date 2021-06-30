@@ -11,5 +11,6 @@
 
 void setMotorSpeed(TIM_HandleTypeDef* htim, uint16_t BLI_Pulse, uint16_t ALI_Pulse );
 void motorInit(TIM_HandleTypeDef* htim);
+void stopMotor(TIM_HandleTypeDef* htim);
 
 #endif

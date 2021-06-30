@@ -38,3 +38,8 @@ void motorInit(TIM_HandleTypeDef* htim){
   HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_2);
   HAL_TIMEx_PWMN_Start(htim, TIM_CHANNEL_3);
 }
+
+void stopMotor(TIM_HandleTypeDef* htim){
+  HAL_TIMEx_PWMN_Stop(htim, TIM_CHANNEL_2);
+  HAL_TIMEx_PWMN_Stop(htim, TIM_CHANNEL_3);
+}

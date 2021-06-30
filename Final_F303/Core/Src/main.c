@@ -99,7 +99,7 @@ keyCode currKeyCode = BUT_NULL;
 // ADC
 uint32_t analogIn;
 uint8_t currMoisture;
-  
+
 
 // Flow
 volatile uint64_t flow = 0;
@@ -109,6 +109,11 @@ uint32_t Difference = 0;
 uint32_t Frequency = 0;
 uint8_t firstCapture = true;
 
+// Motor
+uint8_t runMotor = false;
+uint16_t pulseALI = 0;
+uint16_t pulseBLI = 0;
+
 // RTC
 uint8_t rtcDataIn[7] = {0};
 uint8_t rtcDataOut[7] = {0};
@@ -117,11 +122,14 @@ uint8_t ramDataIn[0x20] = {0};
 uint8_t ramDataOut[0x20] = {1,2,3};
 uint8_t readRAM = false;
 uint8_t writeRAM = false;
-uint8_t readRTC = false;
+uint8_t readRTC = true;
 uint8_t writeRTC = false;
 uint8_t startRTC = false;
 uint8_t setSQWV = false;
 HAL_StatusTypeDef status;
+uint8_t hour[2] = {0,0}; // [0] is current and [1] is prev
+uint8_t hourChanged = false;
+uint8_t writeHour = 0;
 
 /* USER CODE END PV */
 
@@ -209,6 +217,10 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
   HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
   
+  // RTC
+  rtcStart();
+  rtcVbatEnable();
+  
   // Test Code
   setMotorSpeed(&htim1, 0, 10000);
   HAL_Delay (500);
@@ -240,6 +252,13 @@ int main(void)
     if(twentyfive_mS_Flag){
       twentyfive_mS_Flag = false;
       
+        if (currMoisture < moisturePlan.data[hour[0]]){
+          setMotorSpeed(&htim1, 0, 40000);
+        } else {
+          stopMotor(&htim1);
+          hourChanged = false;
+        }
+
     }
     
     if(hundred_mS_Flag){
@@ -274,15 +293,24 @@ int main(void)
     if(one_S_Flag){
       one_S_Flag = false;
       
+      // ********************** MOTOR Debug ********************** //
+      
+      if (runMotor == true) {
+        setMotorSpeed(&htim1, pulseBLI, pulseALI);
+      } else {
+        stopMotor(&htim1);
+      }
+      
+      
       // ********************** RTC ********************** //
       if (readRTC == true) {
-        readRTC = false;
+//        readRTC = false;
         status = rtcReadTime(rtcDataIn);
       }
 
       if (writeRTC == true) {
         writeRTC = false;
-        status = rtcWriteTime(0,51,16,2,29,6,21); // Calibrate time
+        status = rtcWriteTime(0,8,writeHour,2,29,6,21); // Calibrate time
       }
       
       if (startRTC == true) {
@@ -791,7 +819,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef* htim){
   if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3){
-    if(firstCapture){
+    if(firstCapture == true){
       IC_Value1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
       firstCapture = false;
     } else {

@@ -17,5 +17,6 @@ HAL_StatusTypeDef rtcReadTime(uint8_t* data);
 HAL_StatusTypeDef rtcWriteTime(uint8_t sec, uint8_t min, uint8_t hour, uint8_t dow, uint8_t dom, uint8_t month, uint8_t year);
 
 HAL_StatusTypeDef rtcStart();
+HAL_StatusTypeDef rtcVbatEnable();
 
 #endif
