@@ -110,15 +110,16 @@ uint32_t Frequency = 0;
 uint8_t firstCapture = true;
 
 // RTC
-uint8_t rtcDataIn[0x20] = {0};
-uint8_t rtcDataOut[0x20] = {0};
+uint8_t rtcDataIn[7] = {0};
+uint8_t rtcDataOut[7] = {0};
+
 uint8_t ramDataIn[0x20] = {0};
 uint8_t ramDataOut[0x20] = {1,2,3};
 uint8_t readRAM = false;
 uint8_t writeRAM = false;
 uint8_t readRTC = false;
 uint8_t writeRTC = false;
-uint8_t startRTC = true;
+uint8_t startRTC = false;
 uint8_t setSQWV = false;
 HAL_StatusTypeDef status;
 
@@ -195,7 +196,7 @@ int main(void)
   motorInit(&htim1);
   
   // Display Init
-//  romReadData(moisturePlan.data);
+  EEPROM_Read(moisturePlan.data);
   SSD1306_Init();  // initialise  
   SSD1306_Clear();
   SSD1306_GotoXY (5,0);
@@ -225,6 +226,7 @@ int main(void)
     
     if(ten_mS_Flag){
       ten_mS_Flag = false;
+      // ********************** Fast Update Values ********************** //
       ENC_Update(&encoder);
       HAL_ADC_Start_DMA(&hadc1, &analogIn, 1);
       currMoisture = convertMoisture(analogIn);
@@ -243,8 +245,8 @@ int main(void)
     if(hundred_mS_Flag){
       hundred_mS_Flag = false;
       
+      // ********************** Button Debouncing ********************** //
       currKeyCode = getKeyCode();
-      
       if (currKeyCode) {
         if (buttonDebounced == true) {
           if (buttonProcessed == false) { 
@@ -265,8 +267,6 @@ int main(void)
       
       if (twoHuundred_mS_Switch == true) {
         UpdateScreenValues(currMoisture, Frequency);
-//        UpdateScreenValues(currMoisture);
-//        UpdateGraph();
       }
       
     }
@@ -274,66 +274,27 @@ int main(void)
     if(one_S_Flag){
       one_S_Flag = false;
       
-      if (readRAM == true) {
-        readRAM = false;
-
-      status = rtcReadRAM(ramDataIn);
-//        status = HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
-//                                  I2C_MEMADD_SIZE_8BIT, ramDataIn, 8, 1000);
-      }
-
-      if (writeRAM == true) {
-        writeRAM = false;
-        
-        status = rtcWriteRAM(ramDataOut);
-//        status = HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x20, 
-//                                   I2C_MEMADD_SIZE_8BIT, ramDataOut, 8, 1000);
-      }
-
+      // ********************** RTC ********************** //
       if (readRTC == true) {
         readRTC = false;
         status = rtcReadTime(rtcDataIn);
-//        HAL_I2C_Mem_Read(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
-//                         I2C_MEMADD_SIZE_8BIT, rtcDataIn, 8, 1000);
       }
 
       if (writeRTC == true) {
         writeRTC = false;
-        status = rtcReadTime(rtcDataOut);
-//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
-//                          I2C_MEMADD_SIZE_8BIT, rtcDataOut, 8, 1000);
+        status = rtcWriteTime(0,51,16,2,29,6,21); // Calibrate time
       }
       
       if (startRTC == true) {
         startRTC = false;
-        
-        status = rtcStart();
-        
-//        rtcDataOut[0] = 0x08;
-//        rtcDataOut[4] = 0x80;
-//        // place a 0x08 in the [0] location
-//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
-//                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[0], 1, 1000); 
-//        // place a 0x80 in the [4] location
-//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x00, 
-//                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[4], 1, 1000); 
-      }
+        rtcStart();
       
-      if (setSQWV == true) {
-        setSQWV = false;
-        // place a 0x4C in the [2] location
-        
-        status = rtcSetSQWV();
-        
-//        rtcDataOut[2] = 0x4C;
-//        HAL_I2C_Mem_Write(&hi2c1, RTC_DEV_ADDRESS, 0x07, 
-//                          I2C_MEMADD_SIZE_8BIT, &rtcDataOut[2], 1, 1000); 
       }
-      
+
+      // ********************** EEPROM ********************** //
       if (writeDefaultROM == true){
         writeDefaultROM = false;
         EEPROM_Write(ROM_DEFAULT);
-//        romWriteData(ROM_DEFAULT);
       }
       if (readROM == true){
         readROM = false;
@@ -341,8 +302,8 @@ int main(void)
       }
       
       
-     
       if (two_S_Flag) {
+      // ***************** Encoder Wait Logic **************** //
         if(!encoder.direction){
           ProcessKeyCodeInContext(BUT_WAIT, &encoder);
         }

@@ -123,23 +123,6 @@ void SwitchScreens(ui_screen screen_no)
 }
 
 
-// Keyboard Processor
-
-//uint8_t ProcessKeyCode (uint16_t key_code)
-//{
-//  switch (key_code) {
-//  case 0:
-//    break;
-//  case 1:
-//    break;
-//  case 2:
-//    break;
-//  case 3:
-//    break;
-//  }
-//  
-//  return true;
-//}
 
 void ProcessKeyCode(keyCode key_code)
 {

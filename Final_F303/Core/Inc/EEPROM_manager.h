@@ -11,8 +11,6 @@
 #define EEPROM_MANAGER_H
 
 #define EEPROM_ADDR 0xA0
-#define PAGE_SIZE 16 // Bytes
-#define PAGE_NUM 16 // number of pages
 
 void EEPROM_Read (uint8_t *data);
 void EEPROM_Write (uint8_t *data);
